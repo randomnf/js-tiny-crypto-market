@@ -6,7 +6,6 @@ html, body {
     display: flex;
     height: 100%;
     flex-direction: column;
-    justify-content: flex-end;
 }
 
 .row {
@@ -31,4 +30,15 @@ tr td {
 
 form, form > div {
     padding-left: 0 !important;
+}
+
+.widget__form-feedback {
+    clear: both;
+}
+.widget__form-feedback::before {
+    content: "|";
+    color: transparent;
+}
+.widget__form-feedback.error {
+    color: red;
 }

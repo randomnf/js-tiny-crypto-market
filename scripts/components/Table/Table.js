@@ -1,44 +1,52 @@
 export class Table {
-  constructor({ element, data, onRowClick }) {
-    this._el = element;
-    this._onRowClickCallback = onRowClick;
-    this._render(data);
+    constructor({ element, onRowClick }) {
+        this._el = element;
+        this._render();
+        this._onRowClickCallback = onRowClick;
+    }
 
-    this._el.addEventListener('click', e => this._onRowClick(e));
-  }
+    updateData(data) {
+        if (data) {
+            this._tableEl.tBodies[0].innerHTML = `
+                ${data.map(item => `
+                    <tr data-currency="${item.symbol}">
+                        <td>${item.name}</td>
+                        <td>${item.symbol}</td>
+                        <td>${item.rank}</td>
+                        <td>${item.price}</td>
+                    </tr>
+                `).join("")}
+            `;
+        }
+    }
 
-  _onRowClick(e) {
-    const target = e.target.closest('tr');
-    if (!target) return;
+    _onRowClick = event => {
+        const target = event.target.closest("tr");
+        let targetCurrencySymbol;
 
-    const id = target.dataset.id;
-    this._onRowClickCallback(id);
-  }
+        if (target === null || !(targetCurrencySymbol = target.dataset.currency)) {
+            return;
+        }
 
-  _render(data) {
-    this._el.innerHTML = `
-      <table class="data-table highlight"> 
-        <thead>
-          <tr>
-              <th>Name</th>
-              <th>Symbol</th>
-              <th>Rank</th>
-              <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${
-            data.map(coin => `
-              <tr data-id="${coin.id}">
-                <td>${coin.name}</td>
-                <td>${coin.symbol}</td>
-                <td>${coin.rank}</td>
-                <td>${coin.price}</td>
-              </tr>
-            `).join('')
-          }
-        </tbody>
-      </table>
-    `;
-  }
+        this._onRowClickCallback(targetCurrencySymbol);
+    }
+
+    _render() {
+        this._el.innerHTML = `
+            <table class="data-table highlight"> 
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Symbol</th>
+                        <th>Rank</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        `;
+
+        this._tableEl = this._el.firstElementChild;
+        this._tableEl.addEventListener("click", this._onRowClick);
+    }
 }
