@@ -8,14 +8,14 @@ export class TradeWidget {
     trade({ item, balance }) {
         this._balance = balance;
         this._currentItem = item;
-        this._total = item.price * 0;
+        this._total = item.price_usd * 0;
         this._modal.open();
         this._updateDisplay();
     }
 
     _updateAmount(value = 0) {
         this._amount = value;
-        this._total = this._currentItem.price * this._amount;
+        this._total = this._currentItem.price_usd * this._amount;
         this._innerEls.total.textContent = this._total;
 
         this._reportAmountError();
@@ -24,7 +24,7 @@ export class TradeWidget {
     _updateDisplay() {
         this._updateAmount();
         this._innerEls.title.textContent = this._currentItem.name;
-        this._innerEls.currentPrice.textContent = this._currentItem.price;
+        this._innerEls.currentPrice.textContent = this._currentItem.price_usd;
         this._innerEls.amountInp.value = "";
     }
 

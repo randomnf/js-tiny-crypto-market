@@ -22,7 +22,7 @@ export class CurrencyData {
             this.value = data;
             this._cb(data);
         };
-        req.open("get", "/data/coins.json");
+        req.open("get", "https://api.coinpaprika.com/v1/ticker");
         req.send();
 
         return this.value;

@@ -13,7 +13,7 @@ export class Table {
                         <td>${item.name}</td>
                         <td>${item.symbol}</td>
                         <td>${item.rank}</td>
-                        <td>${item.price}</td>
+                        <td>${item.price_usd}</td>
                     </tr>
                 `).join("")}
             `;

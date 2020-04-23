@@ -69,6 +69,7 @@ export class App {
             onXHRLoadCallback: (data) => this._onDataUpdate(data)
         });
         this._currencyGetter.get();
+        this._updateInterval = setInterval(() => this._currencyGetter.get(), 30000);
     }
 
     _formatData(data) {

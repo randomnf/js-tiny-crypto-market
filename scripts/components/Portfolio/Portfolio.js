@@ -26,7 +26,7 @@ export class Portfolio {
         let innerHTML = "";
 
         for (let key in items) {
-            let total = items[key].price * items[key].amount;
+            let total = items[key].price_usd * items[key].amount;
 
             this._portfolioWorth += total;
 
@@ -34,7 +34,7 @@ export class Portfolio {
                 <tr data-currency="${items[key].symbol}">
                     <td>${items[key].name}</td>
                     <td>${items[key].amount}</td>
-                    <td>${items[key].price}</td>
+                    <td>${items[key].price_usd}</td>
                     <td>${total}</td>
                 </tr>
             `;
