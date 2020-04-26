@@ -1,6 +1,11 @@
 export class TradeWidget {
-    constructor({ element, onBuy }) {
+    constructor({
+        element,
+        precision,
+        onBuy
+    }) {
         this._el = element;
+        this._PRECISION = precision;
         this._onBuyCallback = onBuy;
         this._render();
     }
@@ -29,7 +34,7 @@ export class TradeWidget {
     }
 
     _reportAmountError() {
-        this._isAmountError = this._total > this._balance;
+        this._isAmountError = this._total > this._balance || this._amount === 0;
 
         this._innerEls.amountInp.classList.toggle("invalid", this._isAmountError);
 
@@ -37,6 +42,12 @@ export class TradeWidget {
         this._innerEls.formFeedback.textContent = this._isAmountError ? "Total sum is more than yor balance.": "";
 
         this._innerEls.buyBtn.disabled = this._isAmountError;
+
+        return !this._isAmountError;
+    }
+
+    _reportValidity() {
+        return this._innerEls.form.reportValidity() && this._reportAmountError();;
     }
 
     _render() {
@@ -49,25 +60,25 @@ export class TradeWidget {
                         Total: <b class="widget__total"></b>
                     </p>
                     <div class="row">
-                        <form class="col s12" id="buy-form">
-                            <div class="input-field col s4">
-                                <input class="widget__amount-inp" id="amount" type="number" min="0">
+                        <form class="buy-form col s12" id="buy-form" action="/" method="post">
+                            <div class="input-field col s4 buy-form__inner">
+                                <input class="widget__amount-inp" id="amount" type="number" min="0.000000000001" step="0.000000000001" required>
                                 <label for="amount">Amount</label>
                             </div>
                             <div class="widget__form-feedback"></div>
                         </form>
                     </div>
                 </div>
-
                 <div class="modal-footer">
                     <button class="waves-effect waves-teal btn-flat widget__buy-btn" form="buy-form" type="submit">Buy</button>
-                    <button class="modal-close waves-effect waves-teal btn-flat widget__close-btn" type="button" data-action="close" data-target="modal">Cancel</button>
+                    <button class="modal-close waves-effect waves-teal btn-flat widget__close-btn" type="button" data-target="modal">Cancel</button>
                 </div>
             </div>
         `;
 
         this._innerEls = {
             modal:          this._el.firstElementChild,
+            form:           this._el.querySelector(".buy-form"),
             buyBtn:         this._el.querySelector(".widget__buy-btn"),
             closeBtn:       this._el.querySelector(".widget__close-btn"),
             title:          this._el.querySelector(".widget__title"),
@@ -88,12 +99,26 @@ export class TradeWidget {
             const isBuyBtn =    event.target === this._innerEls.buyBtn;
             const isCloseBtn =  event.target === this._innerEls.closeBtn;
 
-            if (isBuyBtn) {
+            if (isBuyBtn && this._reportValidity()) {
                 this._onBuyCallback(this._currentItem, this._amount);
+                this._modal.close();
             }
 
-            if (isBuyBtn || isCloseBtn) {
+            if (isCloseBtn) {
                 this._modal.close();
+            }
+        });
+
+        this._el.addEventListener("submit", event => {
+            event.preventDefault();
+
+            const form = event.target;
+
+            if (form.checkValidity()) {
+                ;
+            }
+            else {
+                this._reportAmountError();
             }
         });
     }

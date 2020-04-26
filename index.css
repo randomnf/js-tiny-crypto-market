@@ -1,8 +1,8 @@
-html, body {
-    height: 100%;
+body {
+    min-height: 100%;
 }
 
-#app {
+.app {
     display: flex;
     height: 100%;
     flex-direction: column;
@@ -12,8 +12,13 @@ html, body {
     width: 100%;
 }
 
-tr td {
+td {
     cursor: pointer;
+}
+
+th:last-child,
+td:last-child {
+    text-align: right;
 }
 
 .modal.open {
@@ -24,11 +29,8 @@ tr td {
     transform: scaleX(1) scaleY(1);
 }
 
-.portfolio-row {
-    margin-bottom: auto;
-}
-
-form, form > div {
+.buy-form,
+.buy-form__inner {
     padding-left: 0 !important;
 }
 
@@ -41,4 +43,62 @@ form, form > div {
 }
 .widget__form-feedback.error {
     color: red;
+}
+
+.portfolio__header {
+    display: flex;
+}
+.portfolio__col {
+    flex-basis: 50%;
+    flex-shrink: 0;
+}
+.portfolio__balance,
+.portfolio__worth {
+    position: relative;
+    padding-left: 5px;
+}
+
+.blink {
+    animation-name: blink;
+    animation-duration: 3s;
+}
+@keyframes blink {
+    from { background-color: rgba(242,242,242,0.75); }
+}
+
+.value-raised,
+.value-fallen {
+    position: relative;
+    animation-duration: 3s;
+}
+.value-raised {
+    animation-name: value-raised;
+}
+.value-fallen {
+    animation-name: value-fallen;
+}
+.value-raised::before,
+.value-fallen::before {
+    position: absolute;
+    top: 50%;
+    margin-left: -10px;
+    transform: translateY(-50%);
+    animation-name: arrow-hide;
+    animation-duration: 3s;
+    animation-fill-mode: both;
+}
+.value-raised::before {
+    content: "\2191";
+}
+.value-fallen::before {
+    content: "\2193";
+}
+@keyframes value-raised {
+    from { color: green }
+}
+@keyframes value-fallen {
+    from { color: rgba(255, 0 , 0 ,.5) }
+}
+@keyframes arrow-hide {
+    100% { color: transparent; }
 }

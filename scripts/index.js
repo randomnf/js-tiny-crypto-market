@@ -1,6 +1,6 @@
-import { App } from './components/App/App.js';
+import { App } from "./components/App/App.js";
 
-new App({
-  element: document.getElementById('app')
-})
-
+const app = new App({
+    element: document.querySelector(".app"),
+    precision: 4,
+});

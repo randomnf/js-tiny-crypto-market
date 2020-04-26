@@ -4,10 +4,10 @@ import { Portfolio } from "../Portfolio/Portfolio.js";
 import { TradeWidget } from "../TradeWidget/TradeWidget.js";
 
 export class App {
-    constructor({ element }) {
+    constructor({ element, precision = 4 }) {
         this._el = element;
-        this._currencyFormatted = {};
-        this._getData();
+        this._PRECISION = Math.trunc(precision);
+        this._initDataService();
         this._render();
         this._initTable();
         this._initPortfolio();
@@ -21,8 +21,8 @@ export class App {
                     <h1>Tiny Crypto Market</h1>
                 </div>
             </div>
-            <div class="row portfolio-row">
-                <div class="col s6 offset-s6 portfolio"></div>
+            <div class="row">
+                <div class="col s8 offset-s4 portfolio"></div>
             </div>
             <div class="row">
                 <div class="col s12 table-wrap"></div>
@@ -33,55 +33,82 @@ export class App {
 
     _initTable() {
         this._table = new Table({
-            element: this._el.querySelector(".table-wrap"),
-            onRowClick: currencySymbol => {
+            element:    this._el.querySelector(".table-wrap"),
+            precision:  this._PRECISION,
+            onRowClick: item => {
                 this._tradeWidget.trade({
-                    item: this._currencyFormatted[currencySymbol],
+                    item,
                     balance: this._portfolio.getBalance()
                 });
-            }
+            },
         });
     }
 
     _initPortfolio() {
         this._portfolio = new Portfolio({
-            element: this._el.querySelector(".portfolio"),
-            balance: 10000
+            element:    this._el.querySelector(".portfolio"),
+            precision:  this._PRECISION,
+            balance:    1000,
         });
     }
 
     _initTradeWidget() {
         this._tradeWidget = new TradeWidget({
-            element: this._el.querySelector(".trade-widget"),
-            onBuy: (item, amount) => {
+            element:    this._el.querySelector(".trade-widget"),
+            precision:  this._PRECISION,
+            onBuy:      (item, amount) => {
                 this._portfolio.add(item, amount);
             },
         });
     }
 
-    _onDataUpdate(data) {
-        this._table.updateData(data);
-        this._formatData(data);
-    }
-
-    _getData() {
+    _initDataService() {
         this._currencyGetter = new CurrencyData({
-            onXHRLoadCallback: (data) => this._onDataUpdate(data)
+            onXHRLoadCallback: data => this._onDataUpdate(data)
         });
-        this._currencyGetter.get();
-        this._updateInterval = setInterval(() => this._currencyGetter.get(), 30000);
+        this._currencyGetter.request();
+        // this._updateInterval = setInterval(() => this._currencyGetter.request(), 30000);
     }
 
-    _formatData(data) {
-        if (data === null) {
+    _onDataUpdate(data) {
+        if (this._isFatality(data)) {
+            clearInterval(this._updateInterval);
+
+            this._el.innerHTML = "New currency detected. App is too weak for dis shet! (author is lazy af)<br>App is dead btw. Расходимся.";
+
             return;
         }
 
-        const formatted = {};
-        data.forEach(item => {
-            formatted[item.symbol] = item;
-        });
+        this._currencyData = data;
+        this._table.updateData(data);
+        // this._portfolio.updateData(data);
 
-        this._currencyFormatted = formatted;
+        // setTimeout(() => {
+        //     data[0] = {...data[0]};
+        //     data[0].price_usd = 0;
+        //     data[2] = {...data[2]};
+        //     data[2].price_usd = 10000;
+        //     this._table.updateData(data);
+        // }, 1000);
+    }
+
+    // если в данных, пришедших из api'шки присутствует новая монета (поменялся порядок сортировки)
+    // ломаем все, ибо мне лень писать доп. логику для всего этого
+    _isFatality(data) {
+        if (!this._currencyData) {
+            this._knownCoins = new Set();
+            data.forEach(item => {
+                this._knownCoins.add(item.id);
+            });
+
+            return false;
+        }
+
+        let isFatality = false;
+        for (let i = 0; !isFatality && i < data.length; i++) {
+            isFatality = this._knownCoins.has(data[i].id);
+        }
+
+        return isFatality;
     }
 }

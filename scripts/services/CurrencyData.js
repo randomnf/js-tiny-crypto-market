@@ -1,11 +1,11 @@
 export class CurrencyData {
     constructor({ onXHRLoadCallback }) {
         this._cb = onXHRLoadCallback;
-        this.value = null;
+        this._value = null;
     }
 
-    get() {
-        let data = this.value;
+    request() {
+        let data = this._value;
         const req = new XMLHttpRequest();
         req.onload = () => {
             try {
@@ -16,15 +16,15 @@ export class CurrencyData {
             }
 
             if (Array.isArray(data)) {
+                // т.к. в api'шке можно получить либо все монеты, либо только одну
+                // вот таким варварским способом получаем только топ-10 из всех
                 data = data.slice(0, 10);
             }
 
-            this.value = data;
+            this._value = data;
             this._cb(data);
         };
         req.open("get", "https://api.coinpaprika.com/v1/ticker");
         req.send();
-
-        return this.value;
     }
 }
