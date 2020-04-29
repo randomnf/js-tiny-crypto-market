@@ -1,6 +1,6 @@
 export class CurrencyData {
-    constructor({ onXHRLoadCallback }) {
-        this._cb = onXHRLoadCallback;
+    constructor({ onXHRLoad }) {
+        this._cb = onXHRLoad;
         this._value = null;
     }
 

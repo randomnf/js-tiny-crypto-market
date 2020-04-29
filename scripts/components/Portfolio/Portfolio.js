@@ -14,7 +14,7 @@ export class Portfolio {
 
         this._balance = balance;
         this._worth = 0;
-        this._currencyItems = {};
+        this._currentItems = {};
 
         this._render();
     }
@@ -24,14 +24,16 @@ export class Portfolio {
     }
 
     add(item, amount) {
-        const currentItems = this._currencyItems;
+        const currentItems = this._currentItems;
         let isItemNew;
 
         if (!currentItems[item.id]) {
             isItemNew = true;
 
-            currentItems[item.id] = item;
-            currentItems[item.id][this._amountSymbol] = amount;
+            currentItems[item.id] = {
+                ...item,
+                [this._amountSymbol]: amount,
+            };
         }
         else {
             isItemNew = false;
@@ -41,9 +43,9 @@ export class Portfolio {
         }
 
         let total = 0;
-        for (let currencyId in currentItems) {
+        for (const currencyId in currentItems) {
             const currentItem = currentItems[currencyId];
-            const isRespectiveItem = currentItem === item;
+            const isRespectiveItem = currencyId === item.id;
             const itemTotal = currentItem.price_usd * currentItem[this._amountSymbol];
 
             if (isRespectiveItem) {
@@ -52,13 +54,13 @@ export class Portfolio {
                     : currentItem[this._rowSymbol];
 
                 const itemTotalFormatted = this._formatPrice(itemTotal);
-                const itemPriceFormatted = this._formatPrice(item.price_usd);
+                const itemPriceFormatted = this._formatPrice(currentItem.price_usd);
 
                 if (isItemNew) {
-                    row.dataset.currencyId = item.id;
+                    row.dataset.currencyId = currentItem.id;
                     row.innerHTML = `
-                        <td>${item.name}</td>
-                        <td>${item[this._amountSymbol]}</td>
+                        <td>${currentItem.name}</td>
+                        <td>${currentItem[this._amountSymbol]}</td>
                         <td>${itemPriceFormatted}</td>
                         <td>${itemTotalFormatted}</td>
                     `;
@@ -84,6 +86,18 @@ export class Portfolio {
         this._innerEls.worth.textContent = `$${this._formatPrice(this._worth)}`;
         this._innerEls.balance.classList.add("value-fallen");
         this._innerEls.worth.classList.add("value-raised");
+
+        this._isBodyRendered = true;
+    }
+
+    updateData(data) {
+        if (!data) {
+            return;
+        }
+
+        if (this._isBodyRendered) {
+            this._updateBodyData(data);
+        }
     }
 
     _render() {
@@ -120,10 +134,54 @@ export class Portfolio {
         M.Collapsible.init(this._el.querySelectorAll('.collapsible'));
 
         this._innerEls = {
+            portfolio:  this._el.querySelector(".portfolio"),
             balance:    this._el.querySelector(".portfolio__balance"),
             worth:      this._el.querySelector(".portfolio__worth"),
             tbody:      this._el.querySelector("tbody"),
         };
+
+        this._isBodyRendered = false;
+    }
+
+    _updateBodyData(data) {
+        let hasDataUpdated = false;
+        let worthUpdated = 0;
+
+        data.forEach(item => {
+            const renderedItem = this._currentItems[item.id];
+
+            if (!renderedItem) {
+                return;
+            }
+
+            let diff = item.price_usd - renderedItem.price_usd;
+            worthUpdated += item.price_usd * renderedItem[this._amountSymbol];
+            if (diff !== 0) {
+                hasDataUpdated = true;
+
+                const row = renderedItem[this._rowSymbol];
+
+                row.children[2].textContent = this._formatPrice(item.price_usd);
+                row.classList.add("blink");
+                row.children[2].classList.add(diff > 0 ? "value-raised" : "value-fallen");
+
+                row.lastElementChild.textContent = this._formatPrice(renderedItem[this._amountSymbol] * item.price_usd);
+
+                Object.assign(renderedItem, item);
+            }
+        });
+
+        if (hasDataUpdated) {
+            let diff = worthUpdated - this._worth;
+
+            if (diff !== 0) {
+                this._worth = worthUpdated;
+
+                this._innerEls.portfolio.classList.add("blink");
+                this._innerEls.worth.textContent = `$${this._formatPrice(worthUpdated)}`;
+                this._innerEls.worth.classList.add(diff > 0 ? "value-raised" : "value-fallen");
+            }
+        }
     }
 
     _formatPrice(num) {

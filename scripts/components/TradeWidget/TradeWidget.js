@@ -38,7 +38,6 @@ export class TradeWidget {
     }
 
     _reportAmountError() {
-        console.log(this._amount)
         const amountOverflow =  this._total > this._balance;
         const amountZero =      this._amount === 0;
         this._isAmountError = amountOverflow || amountZero;
@@ -144,7 +143,7 @@ export class TradeWidget {
         this._wasFormTouched = true;
 
         if (this._reportValidity()) {
-            this._onBuyCallback(this._currentItem, this._amount);
+            this._onBuyCallback(this._currentItem.id, this._amount);
             this._modal.close();
         }
     }

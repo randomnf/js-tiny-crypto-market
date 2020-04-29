@@ -1,5 +1,7 @@
-body {
+.page {
     min-height: 100%;
+    padding-top: 100px;
+    margin: 0;
 }
 
 .app {
@@ -45,8 +47,21 @@ td:last-child {
     color: red;
 }
 
+.portfolio-wrap {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 100%;
+    max-width: 500px;
+    background-color: #ffffff;
+}
+
+.portfolio {
+    margin: 0;
+}
 .portfolio__header {
     display: flex;
+    background: none;
 }
 .portfolio__col {
     flex-basis: 50%;

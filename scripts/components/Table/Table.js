@@ -12,6 +12,7 @@ export class Table {
 
         this._rowSymbol = Symbol("rowEl");
 
+        this._currentItems = {};
         this._render();
     }
 
@@ -36,7 +37,7 @@ export class Table {
             return;
         }
 
-        this._onRowClickCallback(this._currentItems[targetCurrencyId]);
+        this._onRowClickCallback(targetCurrencyId);
     }
 
     _render() {
@@ -64,7 +65,6 @@ export class Table {
         });
 
         this._isBodyRendered = false;
-        this._currentItems = {};
     }
 
     _renderBody(data) {
@@ -82,8 +82,10 @@ export class Table {
                 <td>${this._formatPrice(item.price_usd)}</td>
             `;
 
-            this._currentItems[item.id] = item;
-            this._currentItems[item.id][this._rowSymbol] = row;
+            this._currentItems[item.id] = {
+                ...item,
+                [this._rowSymbol]: row,
+            };
         });
 
         this._tableEl.append(tbody);

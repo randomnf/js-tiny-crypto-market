@@ -21,9 +21,7 @@ export class App {
                     <h1>Tiny Crypto Market</h1>
                 </div>
             </div>
-            <div class="row">
-                <div class="col s8 offset-s4 portfolio"></div>
-            </div>
+            <div class="portfolio-wrap"></div>
             <div class="row">
                 <div class="col s12 table-wrap"></div>
             </div>
@@ -35,9 +33,9 @@ export class App {
         this._table = new Table({
             element:    this._el.querySelector(".table-wrap"),
             precision:  this._PRECISION,
-            onRowClick: item => {
+            onRowClick: currencyId => {
                 this._tradeWidget.trade({
-                    item,
+                    item: this._currencyData.find(item => currencyId === item.id),
                     balance: this._portfolio.getBalance()
                 });
             },
@@ -46,7 +44,7 @@ export class App {
 
     _initPortfolio() {
         this._portfolio = new Portfolio({
-            element:    this._el.querySelector(".portfolio"),
+            element:    this._el.querySelector(".portfolio-wrap"),
             precision:  this._PRECISION,
             balance:    1000,
         });
@@ -56,15 +54,15 @@ export class App {
         this._tradeWidget = new TradeWidget({
             element:    this._el.querySelector(".trade-widget"),
             precision:  this._PRECISION,
-            onBuy:      (item, amount) => {
-                this._portfolio.add(item, amount);
+            onBuy:      (currencyId, amount) => {
+                this._portfolio.add(this._currencyData.find(item => currencyId === item.id), amount);
             },
         });
     }
 
     _initDataService() {
         this._currencyGetter = new CurrencyData({
-            onXHRLoadCallback: data => this._onDataUpdate(data)
+            onXHRLoad: data => this._onDataUpdate(data)
         });
         this._currencyGetter.request();
         // this._updateInterval = setInterval(() => this._currencyGetter.request(), 30000);
@@ -81,7 +79,7 @@ export class App {
 
         this._currencyData = data;
         this._table.updateData(data);
-        // this._portfolio.updateData(data);
+        this._portfolio.updateData(data);
 
         // setTimeout(() => {
         //     data[0] = {...data[0]};
@@ -89,7 +87,8 @@ export class App {
         //     data[2] = {...data[2]};
         //     data[2].price_usd = 10000;
         //     this._table.updateData(data);
-        // }, 1000);
+        //     this._portfolio.updateData(data);
+        // }, 10000);
     }
 
     // если в данных, пришедших из api'шки присутствует новая монета (поменялся порядок сортировки)
