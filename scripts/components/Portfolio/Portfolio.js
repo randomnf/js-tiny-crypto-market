@@ -2,9 +2,11 @@ export class Portfolio {
     constructor({
         element,
         precision,
-        balance
+        balance,
+        onRowClick
     }) {
         this._el = element;
+        this._onRowClickCallback = onRowClick;
         this._animateClasses = ["blink", "value-raised", "value-fallen"];
 
         this._amountSymbol = Symbol("amount");
@@ -90,6 +92,42 @@ export class Portfolio {
         this._isBodyRendered = true;
     }
 
+    remove(item, amount) {
+        const respectiveItem = this._currentItems[item.id];
+        const row = respectiveItem[this._rowSymbol];
+
+        if (respectiveItem[this._amountSymbol] === amount) {
+            row.remove();
+            delete this._currentItems[item.id];
+            this._innerEls.portfolio.classList.add("blink");
+        }
+        else {
+            respectiveItem[this._amountSymbol] -= amount;
+            const itemTotal = item.price_usd * respectiveItem[this._amountSymbol];
+
+            row.children[1].textContent = respectiveItem[this._amountSymbol];
+            row.lastElementChild.textContent = this._formatPrice(itemTotal);
+
+            row.classList.add("blink");
+            row.children[1].classList.add("value-fallen");
+            row.lastElementChild.classList.add("value-fallen");
+        }
+
+        const sellPrice = item.price_usd * amount;
+
+        this._balance += sellPrice;
+        this._worth -= sellPrice;
+
+        if (Object.values(this._currentItems).length === 0) {
+            this._worth = 0;
+        }
+
+        this._innerEls.balance.textContent = `$${this._formatPrice(this._balance)}`;
+        this._innerEls.balance.classList.add("value-raised");
+        this._innerEls.worth.textContent = `$${this._formatPrice(this._worth)}`;
+        this._innerEls.worth.classList.add("value-fallen");
+    }
+
     updateData(data) {
         if (!data) {
             return;
@@ -98,6 +136,17 @@ export class Portfolio {
         if (this._isBodyRendered) {
             this._updateBodyData(data);
         }
+    }
+
+    _onRowClick = event => {
+        const target = event.target.closest("tr");
+        let targetCurrencyId;
+
+        if (target === null || !(targetCurrencyId = target.dataset.currencyId)) {
+            return;
+        }
+
+        this._onRowClickCallback(targetCurrencyId, this._currentItems[targetCurrencyId][this._amountSymbol]);
     }
 
     _render() {
@@ -130,6 +179,8 @@ export class Portfolio {
                 event.target.classList.remove(cssClass);
             });
         });
+
+        this._el.addEventListener("click", this._onRowClick);
 
         M.Collapsible.init(this._el.querySelectorAll('.collapsible'));
 

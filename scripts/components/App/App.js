@@ -34,7 +34,7 @@ export class App {
             element:    this._el.querySelector(".table-wrap"),
             precision:  this._PRECISION,
             onRowClick: currencyId => {
-                this._tradeWidget.trade({
+                this._tradeWidget.buy({
                     item: this._currencyData.find(item => currencyId === item.id),
                     balance: this._portfolio.getBalance()
                 });
@@ -47,6 +47,12 @@ export class App {
             element:    this._el.querySelector(".portfolio-wrap"),
             precision:  this._PRECISION,
             balance:    1000,
+            onRowClick: (currencyId, itemAmount) => {
+                this._tradeWidget.sell({
+                    item: this._currencyData.find(item => currencyId === item.id),
+                    itemAmount,
+                });
+            },
         });
     }
 
@@ -56,6 +62,9 @@ export class App {
             precision:  this._PRECISION,
             onBuy:      (currencyId, amount) => {
                 this._portfolio.add(this._currencyData.find(item => currencyId === item.id), amount);
+            },
+            onSell:     (currencyId, amount) => {
+                this._portfolio.remove(this._currencyData.find(item => currencyId === item.id), amount);
             },
         });
     }

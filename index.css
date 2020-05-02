@@ -23,6 +23,9 @@ td:last-child {
     text-align: right;
 }
 
+.modal {
+    max-height: initial;
+}
 .modal.open {
     z-index: 1003;
     display: block;
@@ -30,10 +33,25 @@ td:last-child {
     top: 30%;
     transform: scaleX(1) scaleY(1);
 }
+.modal__inner {
+    margin-bottom: 0;
+}
 
-.buy-form,
-.buy-form__inner {
+.trade-form,
+.trade-form__inner {
     padding-left: 0 !important;
+}
+
+.trade-table {
+    width: 100%;
+    max-width: 70%;
+    margin-bottom: 15px;
+}
+.trade-table tr {
+    border-bottom: 0;
+}
+.trade-table__col {
+    width: 33.33%;
 }
 
 .widget__form-feedback {
@@ -45,6 +63,11 @@ td:last-child {
 }
 .widget__form-feedback.error {
     color: red;
+}
+.widget__trade-all-btn::after {
+    content: "\2191";
+    display: inline-block;
+    margin-left: 10px;
 }
 
 .portfolio-wrap {
