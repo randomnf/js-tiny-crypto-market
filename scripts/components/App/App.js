@@ -74,7 +74,7 @@ export class App {
             onXHRLoad: data => this._onDataUpdate(data)
         });
         this._currencyGetter.request();
-        // this._updateInterval = setInterval(() => this._currencyGetter.request(), 30000);
+        this._updateInterval = setInterval(() => this._currencyGetter.request(), 30000);
     }
 
     _onDataUpdate(data) {
@@ -90,6 +90,8 @@ export class App {
         this._table.updateData(data);
         this._portfolio.updateData(data);
 
+        // TODO
+        // удалить "тестовый" код
         // setTimeout(() => {
         //     data[0] = {...data[0]};
         //     data[0].price_usd = 0;
