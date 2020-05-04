@@ -114,7 +114,7 @@ export class App {
 
         let isFatality = false;
         for (let i = 0; !isFatality && i < data.length; i++) {
-            isFatality = this._knownCoins.has(data[i].id);
+            isFatality = !this._knownCoins.has(data[i].id);
         }
 
         return isFatality;
