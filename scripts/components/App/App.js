@@ -70,11 +70,15 @@ export class App {
     }
 
     _initDataService() {
-        this._currencyGetter = new CurrencyData({
-            onXHRLoad: data => this._onDataUpdate(data)
-        });
-        this._currencyGetter.request();
-        // this._updateInterval = setInterval(() => this._currencyGetter.request(), 30000);
+        this._currencyGetter = new CurrencyData();
+        this._currencyGetter.fetch()
+            .then(data => this._onDataUpdate(data));
+
+        this._updateInterval = setInterval(
+            () => this._currencyGetter.fetch()
+                .then(data => this._onDataUpdate(data)),
+            30000
+        );
     }
 
     _onDataUpdate(data) {
@@ -89,15 +93,6 @@ export class App {
         this._currencyData = data;
         this._table.updateData(data);
         this._portfolio.updateData(data);
-
-        // setTimeout(() => {
-        //     data[0] = {...data[0]};
-        //     data[0].price_usd = 0;
-        //     data[2] = {...data[2]};
-        //     data[2].price_usd = 10000;
-        //     this._table.updateData(data);
-        //     this._portfolio.updateData(data);
-        // }, 10000);
     }
 
     // если в данных, пришедших из api'шки присутствует новая монета (поменялся порядок сортировки)

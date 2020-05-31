@@ -1,30 +1,14 @@
 export class CurrencyData {
-    constructor({ onXHRLoad }) {
-        this._cb = onXHRLoad;
+    constructor() {
         this._value = null;
     }
 
-    request() {
-        let data = this._value;
-        const req = new XMLHttpRequest();
-        req.onload = () => {
-            try {
-                data = JSON.parse(req.response);
-            }
-            catch (error) {
-                console.log(error);
-            }
-
-            if (Array.isArray(data)) {
-                // т.к. в api'шке можно получить либо все монеты, либо только одну
-                // вот таким варварским способом получаем только топ-10 из всех
-                data = data.slice(0, 10);
-            }
-
-            this._value = data;
-            this._cb(data);
-        };
-        req.open("get", "https://api.coinpaprika.com/v1/ticker");
-        req.send();
+    fetch() {
+        return fetch("https://api.coinpaprika.com/v1/ticker")
+            .then(response => response.json())
+            // т.к. в api'шке можно получить либо все монеты, либо только одну
+            // вот таким варварским способом получаем только топ-10 из всех
+            .then(data => this._value = data.slice(0, 10))
+            .catch(() => this._value);
     }
 }
