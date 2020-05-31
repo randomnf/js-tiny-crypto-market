@@ -138,7 +138,7 @@ export class Portfolio {
         }
     }
 
-    _onRowClick = event => {
+    _onRowClick(event) {
         const target = event.target.closest("tr");
         let targetCurrencyId;
 
@@ -180,7 +180,7 @@ export class Portfolio {
             });
         });
 
-        this._el.addEventListener("click", this._onRowClick);
+        this._el.addEventListener("click", this._onRowClick.bind(this));
 
         M.Collapsible.init(this._el.querySelectorAll('.collapsible'));
 

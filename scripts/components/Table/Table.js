@@ -29,7 +29,7 @@ export class Table {
         }
     }
 
-    _onRowClick = event => {
+    _onRowClick(event) {
         const target = event.target.closest("tr");
         let targetCurrencyId;
 
@@ -56,7 +56,7 @@ export class Table {
         `;
 
         this._tableEl = this._el.firstElementChild;
-        this._tableEl.addEventListener("click", this._onRowClick);
+        this._tableEl.addEventListener("click", this._onRowClick.bind(this));
 
         this._tableEl.addEventListener("animationend", event => {
             this._animateClasses.forEach(cssClass => {
